@@ -4,7 +4,10 @@ https://superuser.com/questions/1324007/setting-window-size-and-position-in-powe
 https://stackoverflow.com/questions/6279076/how-to-use-win32-getmonitorinfo-in-net-c
 #>
 
-$script:GsPath = $args[0];
+Param(
+    [string] $Path,
+    [switch] $AntiBlk
+)
 
 Function Set-GenshinRegistry {
     $Key = "HKCU:\Software\miHoYo\原神"
@@ -14,9 +17,7 @@ Function Set-GenshinRegistry {
 }
 
 Function Get-GenshinPath {
-    if ($script:GsPath) {
-        return $script:GsPath
-    }
+    if ($Path) { return $Path }
     return (Get-ItemProperty "HKLM:\SOFTWARE\launcher" "InstPath").InstPath
 }
 
@@ -97,10 +98,10 @@ $GenshinExePath = "$GenshinWorkDir\YuanShen.exe"
 
 if (Test-Path $GenshinExePath) {
     Set-GenshinRegistry
-    Remove-Item $GenshinBlkPath -Force -ErrorAction SilentlyContinue
+    if ($AntiBlk) { Remove-Item $GenshinBlkPath -Force -ErrorAction SilentlyContinue }
     Start-Process -FilePath $GenshinExePath -WorkingDirectory $GenshinWorkDir
     Set-GenshinFullscreen
 }
 else {
-    Write-Error "Path `"$GenshinExePath`" not found."
+    Write-Error "File `"$GenshinExePath`" not found."
 }
