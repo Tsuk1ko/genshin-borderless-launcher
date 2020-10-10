@@ -92,12 +92,13 @@ public struct RECT {
 
 $GenshinPath = Get-GenshinPath
 $GenshinBlkPath = "$GenshinPath\Genshin Impact Game\YuanShen_Data\Persistent\AssetBundles\blocks\00\29342328.blk"
-$GenshinExePath = "$GenshinPath\Genshin Impact Game\YuanShen.exe"
+$GenshinWorkDir = "$GenshinPath\Genshin Impact Game"
+$GenshinExePath = "$GenshinWorkDir\YuanShen.exe"
 
 if (Test-Path $GenshinExePath) {
     Set-GenshinRegistry
     Remove-Item $GenshinBlkPath -Force -ErrorAction SilentlyContinue
-    &$GenshinExePath
+    Start-Process -FilePath $GenshinExePath -WorkingDirectory $GenshinWorkDir
     Set-GenshinFullscreen
 }
 else {
