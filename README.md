@@ -5,7 +5,7 @@
 ## 使用方法
 
 1. 将游戏设置的图像显示模式改为独占全屏，退出游戏
-2. 下载 [genshin-launcher.exe](https://github.com/Tsuk1ko/genshin-launcher/releases/latest/download/genshin-launcher.exe)
+2. 下载 [genshin-launcher.exe](https://github.com/Tsuk1ko/genshin-launcher/releases/latest/download/genshin-launcher.exe)，放在哪里都行
 3. 以后需要启动游戏的时候直接运行该 exe 即可
 
 Release 由 `main.ps1` 通过 [PS2EXE](https://github.com/MScholtes/TechNet-Gallery/tree/master/PS2EXE-GUI) 封装而来，目的是方便使用管理员权限执行，如果不放心可以自己来
