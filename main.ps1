@@ -18,7 +18,17 @@ Function Set-GenshinRegistry {
 
 Function Get-GenshinPath {
     if ($Path) { return $Path }
-    return (Get-ItemProperty "HKLM:\SOFTWARE\launcher" "InstPath").InstPath
+    $CurrentDir = (Resolve-Path '.').Path;
+    if (Test-Path "$CurrentDir\Genshin Impact Game\YuanShen.exe") {
+        return $CurrentDir
+    }
+    Try {
+        return (Get-ItemProperty "HKLM:\SOFTWARE\launcher" "InstPath" -ErrorAction Stop).InstPath
+    }
+    Catch {
+        Write-Error "Genshin executable file not found."
+        Exit
+    }
 }
 
 Function Set-GenshinFullscreen {
@@ -34,10 +44,6 @@ using System.Runtime.InteropServices;
 public class Window {
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool MoveWindow(IntPtr hWnd, int x, int y, int width, int height, bool repaint);
 
     [DllImport("user32.dll")]
@@ -47,10 +53,11 @@ public class Window {
     public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
     [DllImport("user32.dll")]
-    public static extern int GetDC(IntPtr hwnd);
+    public static extern int MonitorFromWindow(IntPtr hWnd, int dwFlags);
 
-    [DllImport("gdi32.dll")]
-    public static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetMonitorInfo(IntPtr hMon, ref MONITORINFO lpmi);
 }
 
 public struct RECT {
@@ -59,14 +66,23 @@ public struct RECT {
     public int Right;
     public int Bottom;
 }
+
+public struct MONITORINFO {
+    public int  cbSize;
+    public RECT rcMonitor;
+    public RECT rcWork;
+    public int  dwFlags;
+}
 "@
         }
     }
     Process {
+        $MONITOR_DEFAULTTONEAREST = 0x00000002;
         $WS_CAPTION = 0x00C00000
         $WS_SIZEBOX = 0x00040000
         $GWL_STYLE = -16
-        $Rectangle = New-Object RECT
+        $MonitorInfo = New-Object MONITORINFO
+        $MonitorInfo.cbSize = 40;
         $script:LoopCount = 0;
         do {
             Start-Sleep -Milliseconds 100
@@ -77,13 +93,12 @@ public struct RECT {
                 $Processes | ForEach-Object {
                     $HWnd = $_.MainWindowHandle
                     if ( $HWnd -eq [System.IntPtr]::Zero ) { return }
-                    [Window]::GetWindowRect($HWnd, [ref]$Rectangle)
                     $Style = [Window]::GetWindowLong($HWnd, $GWL_STYLE)
                     [Window]::SetWindowLong($HWnd, $GWL_STYLE, $Style -band ( -bnot ($WS_CAPTION -bor $WS_SIZEBOX)))
-                    $MonDC = [Window]::GetDC($HWnd)
-                    $Width = [Window]::GetDeviceCaps($MonDC, 118)
-                    $Height = [Window]::GetDeviceCaps($MonDC, 117)
-                    [Window]::MoveWindow($HWnd, $Rectangle.Left, $Rectangle.Top, $Width, $Height, $true)
+                    $HMon = [Window]::MonitorFromWindow($HWnd, $MONITOR_DEFAULTTONEAREST)
+                    [Window]::GetMonitorInfo($HMon, [ref]$MonitorInfo);
+                    $RcMon = $MonitorInfo.rcMonitor;
+                    [Window]::MoveWindow($HWnd, $RcMon.Left, $RcMon.Top, $RcMon.Right - $RcMon.Left, $RcMon.Bottom - $RcMon.Top, $true)
                     $script:ContinueLoop = $false
                 }
             }
@@ -103,5 +118,5 @@ if (Test-Path $GenshinExePath) {
     Set-GenshinFullscreen
 }
 else {
-    Write-Error "File `"$GenshinExePath`" not found."
+    Write-Error "Genshin executable file `"$GenshinExePath`" not found."
 }

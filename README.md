@@ -5,10 +5,11 @@
 ## 使用方法
 
 1. 将游戏设置的图像显示模式改为独占全屏，退出游戏
-2. 下载 [genshin-launcher.exe](https://github.com/Tsuk1ko/genshin-launcher/releases/latest/download/genshin-launcher.exe)，放在哪里都行
+2. 下载 [genshin-launcher.exe](https://github.com/Tsuk1ko/genshin-launcher/releases/latest/download/genshin-launcher.exe)，一般情况下放在哪里都行  
+   ※ 如果提示找不到原神可执行文件，请把 `genshin-launcher.exe` 放原神根目录，或使用 `-Path` 参数指定
 3. 以后需要启动游戏的时候直接运行该 exe 即可
 
-Release 由 `main.ps1` 通过 [PS2EXE](https://github.com/MScholtes/TechNet-Gallery/tree/master/PS2EXE-GUI) 封装而来，目的是方便使用管理员权限执行，如果不放心可以自己来
+`genshin-launcher.exe` 由 `main.ps1` 通过 [PS2EXE](https://github.com/MScholtes/TechNet-Gallery/tree/master/PS2EXE-GUI) 封装而来，目的是方便使用管理员权限执行，如果不放心可以自己来
 
 ## 参数
 
@@ -16,11 +17,13 @@ Release 由 `main.ps1` 通过 [PS2EXE](https://github.com/MScholtes/TechNet-Gall
 
 ### `-Path`
 
-原神根目录是从注册表中获取的，如果你不是正常安装的原神可能需要使用该参数来指定，例：
+可用于指定原神根目录，例：
 
 ```powershell
 genshin-launcher.exe -Path "D:\Program Files\Genshin Impact"
 ```
+
+原神根目录获取优先级：`-Path` > 当前目录 > 从注册表获取
 
 ### `-AntiBlk`
 
