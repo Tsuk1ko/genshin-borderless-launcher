@@ -31,7 +31,10 @@ Function Get-GenshinPath {
     }
 }
 
-Function Set-GenshinFullscreen {
+Function Set-ProcessWindowFullscreen {
+    Param(
+        [System.Diagnostics.Process] $Process
+    )
     Begin {
         Try {
             [void][Window]
@@ -77,32 +80,25 @@ public struct MONITORINFO {
         }
     }
     Process {
+        # Init
         $MONITOR_DEFAULTTONEAREST = 0x00000002;
         $WS_CAPTION = 0x00C00000
         $WS_SIZEBOX = 0x00040000
         $GWL_STYLE = -16
         $MonitorInfo = New-Object MONITORINFO
         $MonitorInfo.cbSize = 40;
-        $script:LoopCount = 0;
-        do {
-            Start-Sleep -Milliseconds 100
-            $script:ContinueLoop = $true
-            $script:LoopCount++
-            $Processes = Get-Process -Name "YuanShen" -ErrorAction SilentlyContinue
-            if ($Processes) {
-                $Processes | ForEach-Object {
-                    $HWnd = $_.MainWindowHandle
-                    if ( $HWnd -eq [System.IntPtr]::Zero ) { return }
-                    $Style = [Window]::GetWindowLong($HWnd, $GWL_STYLE)
-                    [Window]::SetWindowLong($HWnd, $GWL_STYLE, $Style -band ( -bnot ($WS_CAPTION -bor $WS_SIZEBOX)))
-                    $HMon = [Window]::MonitorFromWindow($HWnd, $MONITOR_DEFAULTTONEAREST)
-                    [Window]::GetMonitorInfo($HMon, [ref]$MonitorInfo);
-                    $RcMon = $MonitorInfo.rcMonitor;
-                    [Window]::MoveWindow($HWnd, $RcMon.Left, $RcMon.Top, $RcMon.Right - $RcMon.Left, $RcMon.Bottom - $RcMon.Top, $true)
-                    $script:ContinueLoop = $false
-                }
-            }
-        } while ($script:ContinueLoop -and ($script:LoopCount -le 300))
+        # Wait for main window launched
+        Do {
+            Start-Sleep -Milliseconds 50
+            $HWnd = $Process.MainWindowHandle
+        } While ($HWnd -eq 0)
+        # Set window style and position
+        $Style = [Window]::GetWindowLong($HWnd, $GWL_STYLE)
+        [Window]::SetWindowLong($HWnd, $GWL_STYLE, $Style -band ( -bnot ($WS_CAPTION -bor $WS_SIZEBOX)))
+        $HMon = [Window]::MonitorFromWindow($HWnd, $MONITOR_DEFAULTTONEAREST)
+        [Window]::GetMonitorInfo($HMon, [ref]$MonitorInfo)
+        $RcMon = $MonitorInfo.rcMonitor
+        [Window]::MoveWindow($HWnd, $RcMon.Left, $RcMon.Top, $RcMon.Right - $RcMon.Left, $RcMon.Bottom - $RcMon.Top, $true)
     }
 }
 
@@ -114,8 +110,8 @@ $GenshinExePath = "$GenshinWorkDir\YuanShen.exe"
 if (Test-Path $GenshinExePath) {
     Set-GenshinRegistry
     if ($AntiBlk) { Remove-Item $GenshinBlkPath -Force -ErrorAction SilentlyContinue }
-    Start-Process -FilePath $GenshinExePath -WorkingDirectory $GenshinWorkDir
-    Set-GenshinFullscreen
+    $Process = Start-Process -FilePath $GenshinExePath -WorkingDirectory $GenshinWorkDir -PassThru
+    Set-ProcessWindowFullscreen $Process
 }
 else {
     Write-Error "Genshin executable file `"$GenshinExePath`" not found."
