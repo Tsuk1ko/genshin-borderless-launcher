@@ -12,7 +12,7 @@ Param(
 Function Set-GenshinRegistry {
     $Key = "HKCU:\Software\miHoYo\原神"
     $Name = "Screenmanager Is Fullscreen mode_h3981298716"
-    if ((Test-Path $key) -eq $false) { return }
+    if ((Test-Path $Key) -eq $false) { return }
     Set-ItemProperty $Key $Name 0 -type "Dword"
 }
 
@@ -26,7 +26,7 @@ Function Get-GenshinPath {
         return (Get-ItemProperty "HKLM:\SOFTWARE\launcher" "InstPath" -ErrorAction Stop).InstPath
     }
     Catch {
-        Write-Error "Genshin executable file not found."
+        Write-Error "Genshin Impact executable file not found."
         Exit
     }
 }
@@ -88,7 +88,12 @@ public struct MONITORINFO {
         $MonitorInfo = New-Object MONITORINFO
         $MonitorInfo.cbSize = 40;
         # Wait for main window launched
+        $WaitCount = 0;
         Do {
+            if (++$WaitCount -gt 600) {
+                Write-Error "Genshin Impact launch timeout!"
+                Exit
+            }
             Start-Sleep -Milliseconds 50
             $HWnd = $Process.MainWindowHandle
         } While ($HWnd -eq 0)
@@ -114,5 +119,5 @@ if (Test-Path $GenshinExePath) {
     Set-ProcessWindowFullscreen $Process
 }
 else {
-    Write-Error "Genshin executable file `"$GenshinExePath`" not found."
+    Write-Error "Genshin Impact executable file `"$GenshinExePath`" not found."
 }
