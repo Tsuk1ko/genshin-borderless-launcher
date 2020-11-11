@@ -5,27 +5,36 @@ https://stackoverflow.com/questions/6279076/how-to-use-win32-getmonitorinfo-in-n
 #>
 
 Param(
-    [string] $Path,
-    [switch] $AntiBlk
+    [string] $Path
 )
 
 Function Set-GenshinRegistry {
     $Key = "HKCU:\Software\miHoYo\原神"
     $Name = "Screenmanager Is Fullscreen mode_h3981298716"
-    if ((Test-Path $Key) -eq $false) { return }
-    Set-ItemProperty $Key $Name 0 -type "Dword"
+    try {
+        if (((Test-Path $Key) -eq $true) -and ((Get-ItemPropertyValue $Key $Name -ErrorAction Stop) -ne 0)) {
+            Set-ItemProperty $Key $Name 0 -type "Dword"
+        }
+    }
+    catch {
+        Write-Error "Genshin Impact registry not found."
+        Exit
+    }
 }
 
-Function Get-GenshinPath {
-    if ($Path) { return $Path }
-    $CurrentDir = (Resolve-Path '.').Path;
-    if (Test-Path "$CurrentDir\Genshin Impact Game\YuanShen.exe") {
-        return $CurrentDir
+Function Get-GenshinWorkDir {
+    $CurDir = @( { (Resolve-Path '.').Path }, { $Path })[$Path];
+    if (Test-Path "$CurDir\YuanShen.exe") {
+        return $CurDir
     }
-    Try {
-        return (Get-ItemProperty "HKLM:\SOFTWARE\launcher" "InstPath" -ErrorAction Stop).InstPath
+    if (Test-Path "$CurDir\Genshin Impact Game\YuanShen.exe") {
+        return "$CurDir\Genshin Impact Game"
     }
-    Catch {
+    try {
+        $RootDir = Get-ItemPropertyValue "HKLM:\SOFTWARE\launcher" "InstPath" -ErrorAction Stop
+        return "$RootDir\Genshin Impact Game"
+    }
+    catch {
         Write-Error "Genshin Impact executable file not found."
         Exit
     }
@@ -36,10 +45,10 @@ Function Set-ProcessWindowFullscreen {
         [System.Diagnostics.Process] $Process
     )
     Begin {
-        Try {
+        try {
             [void][Window]
         }
-        Catch {
+        catch {
             Add-Type @"
 using System;
 using System.Runtime.InteropServices;
@@ -107,14 +116,11 @@ public struct MONITORINFO {
     }
 }
 
-$GenshinPath = Get-GenshinPath
-$GenshinBlkPath = "$GenshinPath\Genshin Impact Game\YuanShen_Data\Persistent\AssetBundles\blocks\00\29342328.blk"
-$GenshinWorkDir = "$GenshinPath\Genshin Impact Game"
+$GenshinWorkDir = Get-GenshinWorkDir
 $GenshinExePath = "$GenshinWorkDir\YuanShen.exe"
 
 if (Test-Path $GenshinExePath) {
     Set-GenshinRegistry
-    if ($AntiBlk) { Remove-Item $GenshinBlkPath -Force -ErrorAction SilentlyContinue }
     $Process = Start-Process -FilePath $GenshinExePath -WorkingDirectory $GenshinWorkDir -PassThru
     Set-ProcessWindowFullscreen $Process
 }
