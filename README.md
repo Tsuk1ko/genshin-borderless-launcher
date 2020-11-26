@@ -1,11 +1,13 @@
-# genshin-launcher
+# genshin-borderless-launcher
 
 原神窗口全屏启动器，原理参考 NGA [[心得交流] 无边框窗口全屏小工具](https://bbs.nga.cn/read.php?tid=23375756)
+
+[English readme](README-EN.md)
 
 ## 使用方法
 
 1. 将游戏设置的图像显示模式改为独占全屏，退出游戏
-2. 下载 [genshin-launcher.exe](https://github.com/Tsuk1ko/genshin-launcher/releases/latest/download/genshin-launcher.exe)，一般情况下放在哪里都行  
+2. 下载 [genshin-launcher.exe](https://github.com/Tsuk1ko/genshin-borderless-launcher/releases/latest/download/genshin-launcher.exe)，一般情况下放在哪里都行  
    - 如果提示找不到原神可执行文件，请把 `genshin-launcher.exe` 放原神根目录或 `YuanShen.exe` 所在目录，也可以使用 `-Path` 参数来指定
 3. 以后需要启动游戏的时候直接运行该 exe 即可
 
