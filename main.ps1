@@ -5,7 +5,8 @@ https://stackoverflow.com/questions/6279076/how-to-use-win32-getmonitorinfo-in-n
 #>
 
 Param(
-    [string] $Path
+    [string] $Path,
+    [switch] $DryRun
 )
 
 Function Set-GenshinRegistry {
@@ -23,15 +24,20 @@ Function Set-GenshinRegistry {
 }
 
 Function Get-GenshinWorkDir {
-    $CurDir = @( { (Resolve-Path '.').Path }, { $Path })[$Path];
+    $CurDir = (Resolve-Path '.').Path;
+    if ($Path) { $CurDir = $Path }
+    Write-Host "Current directory:`t$CurDir"
     if (Test-Path "$CurDir\YuanShen.exe") {
+        Write-Host "Test-Path 1 ok"
         return $CurDir
     }
     if (Test-Path "$CurDir\Genshin Impact Game\YuanShen.exe") {
+        Write-Host "Test-Path 2 ok"
         return "$CurDir\Genshin Impact Game"
     }
     try {
         $RootDir = Get-ItemPropertyValue "HKLM:\SOFTWARE\launcher" "InstPath" -ErrorAction Stop
+        Write-Host "From registry:`t`t$RootDir"
         return "$RootDir\Genshin Impact Game"
     }
     catch {
@@ -120,6 +126,7 @@ $GenshinWorkDir = Get-GenshinWorkDir
 $GenshinExePath = "$GenshinWorkDir\YuanShen.exe"
 
 if (Test-Path $GenshinExePath) {
+    if ($DryRun) { Exit }
     Set-GenshinRegistry
     $Process = Start-Process -FilePath $GenshinExePath -WorkingDirectory $GenshinWorkDir -PassThru
     Set-ProcessWindowFullscreen $Process
