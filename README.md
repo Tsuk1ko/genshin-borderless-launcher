@@ -1,8 +1,8 @@
 # genshin-borderless-launcher
 
-原神窗口全屏启动器，原理参考 [NGA [心得交流] 无边框窗口全屏小工具](https://bbs.nga.cn/read.php?tid=23375756)
+原神窗口全屏启动器，仅适用于国服
 
-<!-- [ENGLISH README](README-EN.md) -->
+原理参考 [NGA [心得交流] 无边框窗口全屏小工具](https://bbs.nga.cn/read.php?tid=23375756)
 
 ## 使用方法
 
@@ -20,7 +20,7 @@
 
 ### `-Path`
 
-可用于指定原神根目录，以下两种目录指定都是可行的，脚本会自动识别：
+可用于指定原神根目录，以下两种目录指定都是可行的，会自动识别：
 
 ```powershell
 genshin-launcher.exe -Path "D:\Program Files\Genshin Impact"
@@ -28,3 +28,7 @@ genshin-launcher.exe -Path "D:\Program Files\Genshin Impact\Genshin Impact Game"
 ```
 
 原神根目录获取优先级：`-Path` > 当前目录 > 从注册表获取
+
+## 版权
+
+`logo.ico` 是从原神官方启动器 `launcher.exe` 中提取的，版权归 miHoYo 所有
