@@ -9,8 +9,6 @@
 2. 使用 `-popupwindow` 参数启动原神进程，作用是隐藏标题栏和窗口边框，[这是 Unity Standalone Player 通用的一个命令行参数](https://docs.unity3d.com/cn/current/Manual/CommandLineArguments.html)
 
 > 你可以直接按照上面的步骤手动操作来达到同样的效果，第二步你只要给原神进程创建一个快捷方式并加上参数即可，本启动器仅相当于一个懒人脚本而已
->
-> `genshin-launcher.exe` 由 `main.ps1` 通过 [PS2EXE](https://github.com/MScholtes/TechNet-Gallery/tree/master/PS2EXE-GUI) 封装而来，参数见 `build.ps1`，目的是方便使用管理员权限执行，如果不放心可以自己来
 
 ## 使用方法
 
@@ -19,6 +17,8 @@
    - 如果提示找不到原神可执行文件，请把 `genshin-launcher.exe` 放原神根目录，也可以使用 `-Path` 参数来指定
    - 根目录指的是官方启动器 `launcher.exe` 所在目录，不要放进 `Genshin Impact Game` 里，会导致原神提示数据错误而无法进入游戏
 3. 以后需要启动原神的时候直接运行该 exe 即可
+
+> `genshin-launcher.exe` 由 `main.ps1` 通过 [PS2EXE](https://github.com/MScholtes/TechNet-Gallery/tree/master/PS2EXE-GUI) 封装而来，参数见 `build.ps1`，目的是方便使用管理员权限执行，如果不放心可以自己来
 
 ## 参数
 
